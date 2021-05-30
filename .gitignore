@@ -184,3 +184,8 @@ UpgradeLog*.htm
 FakesAssemblies/
 /project.lock.json
 /.svn
+
+# VS for Mac
+mono_crash.*.json
+UserPrefs.xml
+project-cache/
