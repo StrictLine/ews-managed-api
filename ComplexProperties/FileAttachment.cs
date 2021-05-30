@@ -189,15 +189,17 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <param name="stream">The stream to load the content of the attachment into.</param>
         public async System.Threading.Tasks.Task Load(Stream stream)
         {
-            this.loadToStream = stream;
-
+            // TODO: content/contentStream should be removed or should reference to underlying value
             try
             {
+                // 1) Load attachment from EWS
                 await this.Load();
+
+                // 2) Write content to stream
+                stream.Write(Content, 0, Content.Length);
             }
             finally
             {
-                this.loadToStream = null;
             }
         }
 
@@ -207,21 +209,19 @@ namespace Microsoft.Exchange.WebServices.Data
         /// <param name="fileName">The name of the file to load the content of the attachment into. If the file already exists, it is overwritten.</param>
         public async System.Threading.Tasks.Task Load(string fileName)
         {
-            this.loadToStream = new FileStream(fileName, FileMode.Create);
+            using(var fileStream = new FileStream(fileName, FileMode.Create))
+                try
+                {
+                    // 1) Load attachment from EWS
+                    await this.Load();
 
-            try
-            {
-                await this.Load();
-            }
-            finally
-            {
-                this.loadToStream.Dispose();
-                this.loadToStream = null;
-            }
+                    // 2) Write content to file
+                    fileStream.Write(Content, 0, Content.Length);
+                }
+                finally
+                {
+                }
 
-            this.fileName = fileName;
-            this.content = null;
-            this.contentStream = null;
         }
 
         /// <summary>
